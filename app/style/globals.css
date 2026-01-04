@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffff;
+  --foreground: #1a1a1a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Primary Color System - #b16e27 (Warm Brown) */
+  --color-primary-50: #f5ebe0; /* Lightest - for backgrounds */
+  --color-primary-100: #e8d4c4; /* Very light - for subtle backgrounds */
+  --color-primary-200: #d9a66d; /* Light - for hover states */
+  --color-primary-300: #c88a4a; /* Lighter - for secondary actions */
+  --color-primary-400: #b16e27; /* Base primary color */
+  --color-primary-500: #9d5f22; /* Slightly darker */
+  --color-primary-600: #8d561f; /* Dark - for hover states */
+  --color-primary-700: #6a4018; /* Darker - for active states */
+  --color-primary-800: #4d2f11; /* Very dark */
+  --color-primary-900: #331f0b; /* Darkest - for text on light bg */
+
+  /* Primary default (uses 400) */
+  --color-primary: var(--color-primary-500);
+  --text-light: #ffff;
+  --text-dark: #1a1a1a;
+
+  /* Secondary Color System - #ad9452 (Olive Gold) */
+  --color-secondary-50: #f5f2e8; /* Lightest - for backgrounds */
+  --color-secondary-100: #e8dcc4; /* Very light - for subtle backgrounds */
+  --color-secondary-200: #dbcc9e; /* Light - for hover states */
+  --color-secondary-300: #c4b078; /* Lighter - for secondary actions */
+  --color-secondary-400: #ad9452; /* Base secondary color */
+  --color-secondary-500: #8a7542; /* Slightly darker */
+  --color-secondary-600: #675632; /* Dark - for hover states */
+  --color-secondary-700: #4d3f24; /* Darker - for active states */
+  --color-secondary-800: #332a18; /* Very dark */
+  --color-secondary-900: #1a150c; /* Darkest - for text on light bg */
+
+  /* Secondary default (uses 400) */
+  --color-secondary: var(--color-secondary-400);
+
+  /* Legacy/Compatibility Colors - Maintained for backward compatibility */
+  --color-olive: var(--color-secondary);
+  --color-primary-dark: var(--color-primary-600);
+  --color-primary-light: var(--color-primary-300);
+  --color-secondary-dark: var(--color-secondary-600);
+  --color-secondary-light: var(--color-secondary-300);
+
+  /* Background Colors */
+  --color-secondaryLight: #faf6f1;
+
+  /* Orange alias for backward compatibility */
+  --color-orange: var(--color-primary);
+
+  --breakpoint-sm: 26rem; /* 416px */
+  --breakpoint-md: 49rem; /* 768px */
+  --breakpoint-lg: 64rem; /* 1024px */
+  --breakpoint-xl: 80rem; /* 1280px */
+  --breakpoint-2xl: 96rem; /* 1536px */
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-outfit400);
+  /* --font-brand is set by Next.js font loader in layout.tsx */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit400);
+  overflow-x: hidden;
+}
+
+/* RTL Support */
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+}
+
+/* Flip spacing for RTL */
+[dir="rtl"] .space-x-1 > * + * {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+[dir="rtl"] .mr-2 {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+[dir="rtl"] .ml-2 {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer utilities {
+  .normal-black {
+    @apply font-medium text-[14px] text-black;
+  }
+  .footer-listed-items {
+    @apply flex flex-col gap-2 text-gray-500;
+  }
+  .underlined-header {
+    @apply mb-6 after:content-[''] after:block after:w-[100px] after:h-[2px] after:bg-orange after:mt-1 after:mb-2;
+  }
+  .side-nav-link {
+    @apply flex items-center gap-2 px-2 py-4;
+  }
+  .side-nav-link-active {
+    @apply border-r-6 border-orange bg-secondary;
+  }
+  .dashboard-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange/20 focus:border-orange;
+  }
+  .upload-area {
+    @apply w-full cursor-pointer border border-gray-300 rounded-md hover:border-orange transition-colors;
+  }
+  .toast {
+    @apply fixed bottom-5 right-5 w-50 py-8 text-center z-500 rounded text-white;
+  }
+  .table-row {
+    @apply w-full mb-10 md:mb-4 grid gap-2 md:gap-0 md:grid-cols-[50%_25%_25%] items-center;
+  }
+  .order-summary-pair {
+    @apply flex flex-col gap-2;
+  }
+  .order-summary-pair input,
+  .order-summary-pair select {
+    @apply bg-white border-2 border-gray-100 p-2;
+  }
+  hr {
+    @apply text-gray-300;
+  }
+  .address-form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  .address-form-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange/20 focus:border-orange;
+  }
+  .orders-table-th {
+    @apply px-4 py-3 text-center text-sm font-medium text-gray-500 uppercase tracking-wider;
+  }
+  .promo-code-table-th {
+    @apply px-4 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider;
+  }
+  .promo-code-table-td {
+    @apply px-4 py-3 whitespace-nowrap text-sm font-medium;
+  }
+  .product-table-th {
+    @apply px-4 lg:px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+  .product-table-td {
+    @apply px-4 lg:px-6 py-4 whitespace-nowrap;
+  }
+  .brand-name {
+    font-family: var(--font-brand);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    background: linear-gradient(
+      to right,
+      var(--color-primary-600) 0%,
+      var(--color-primary-400) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .layout-shell {
+    @apply w-[90%] mx-auto md:container md:px-6 lg:px-4;
+  }
+
+  .section-spacing {
+    @apply py-6 md:py-8 relative;
+  }
+  .top-nav::after,
+  .user-nav::after {
+    content: "";
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 1px;
+    margin-top: 0.5rem;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-primary-200) 15%,
+      var(--color-primary-400) 50%,
+      var(--color-primary-200) 85%,
+      transparent 100%
+    );
+  }
+
+  .user-nav::after {
+    margin-top: 0;
+  }
+  .section-spacing::after {
+    content: "";
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 1px;
+    margin-top: 2rem;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-primary-200) 15%,
+      var(--color-primary-400) 50%,
+      var(--color-primary-200) 85%,
+      transparent 100%
+    );
+  }
+
+  .section-spacing::before {
+    content: "◆";
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.5rem;
+    color: var(--color-primary-400);
+    background: var(--background);
+    padding: 0 0.75rem;
+    z-index: 1;
+  }
+  .footer-header {
+    @apply text-2xl font-bold relative pb-2.5 text-gray-900 mb-6 after:absolute after:bottom-0 after:left-0 after:w-[40px] after:h-1 after:bg-orange;
+  }
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up-delay {
+  animation: fade-in-up 1s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+/* Floating animation for hero shapes */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-2deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+/* Modal animations */
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-appear {
+  animation: modal-appear 0.2s ease-out forwards;
+}
