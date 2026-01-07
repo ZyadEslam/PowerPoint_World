@@ -1,0 +1,128 @@
+import mongoose from "mongoose";
+
+const purchaseSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User ID is required"],
+    },
+    templateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Template",
+      required: [true, "Template ID is required"],
+    },
+    // Store template info at time of purchase (in case template is deleted/modified)
+    templateSnapshot: {
+      name: {
+        type: String,
+        required: true,
+      },
+      thumbnail: {
+        type: String,
+        required: true,
+      },
+      fileUrl: {
+        type: String,
+        required: true,
+      },
+      fileName: {
+        type: String,
+        required: true,
+      },
+      categoryName: {
+        type: String,
+        required: true,
+      },
+    },
+    // Purchase details
+    purchasePrice: {
+      type: Number,
+      required: [true, "Purchase price is required"],
+    },
+    originalPrice: {
+      type: Number,
+      required: false,
+    },
+    discountAmount: {
+      type: Number,
+      default: 0,
+    },
+    promoCode: {
+      type: String,
+      required: false,
+    },
+    // Payment info
+    paymentMethod: {
+      type: String,
+      enum: ["paymob"],
+      default: "paymob",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed", "refunded"],
+      default: "pending",
+    },
+    paymobOrderId: {
+      type: String,
+      required: false,
+    },
+    paymobTransactionId: {
+      type: String,
+      required: false,
+    },
+    // Download tracking
+    downloadCount: {
+      type: Number,
+      default: 0,
+    },
+    lastDownloadAt: {
+      type: Date,
+      required: false,
+    },
+    // Status
+    status: {
+      type: String,
+      enum: ["active", "refunded", "expired"],
+      default: "active",
+    },
+    // Receipt info
+    receiptNumber: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+
+// Generate unique receipt number before saving
+purchaseSchema.pre("save", async function (next) {
+  if (!this.receiptNumber) {
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    this.receiptNumber = `PPT-${year}${month}${day}-${random}`;
+  }
+  next();
+});
+
+// Indexes
+purchaseSchema.index({ userId: 1, paymentStatus: 1 });
+purchaseSchema.index({ templateId: 1 });
+purchaseSchema.index({ userId: 1, templateId: 1 }, { unique: true });
+purchaseSchema.index({ receiptNumber: 1 });
+purchaseSchema.index({ createdAt: -1 });
+purchaseSchema.index({ paymobOrderId: 1 });
+
+const Purchase =
+  mongoose.models.Purchase || mongoose.model("Purchase", purchaseSchema);
+
+export default Purchase;
+

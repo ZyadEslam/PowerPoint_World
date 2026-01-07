@@ -59,6 +59,7 @@
     "signIn": "تسجيل الدخول",
     "signOut": "تسجيل الخروج",
     "myAccount": "حسابي",
+    "myTemplates": "قوالبي",
     "menu": "القائمة",
     "exitDashboard": "الخروج من لوحة التحكم",
     "shoppingCart": "سلة التسوق",
@@ -66,7 +67,7 @@
     "exit": "خروج",
     "closeMenu": "إغلاق القائمة",
     "work": "أعمالي",
-    "logo": "قوالب باوربوينت"
+    "logo": "عالم الباوربوينت"
   },
   "hero": {
     "badge": "قوالب باوربوينت احترافية",
@@ -87,19 +88,30 @@
     }
   },
   "templates": {
-    "title": "قوالبنا المميزة",
-    "subtitle": "تصاميم احترافية لكل مناسبة",
+    "title": "قوالب باوربوينت",
+    "subtitle": "اكتشف مجموعتنا من القوالب المصممة باحترافية",
+    "badge": "قوالب مميزة",
     "viewAll": "عرض الكل",
-    "price": "ر.س",
+    "price": "جنيه",
     "buy": "شراء الآن",
     "preview": "معاينة",
-    "currency": "ر.س",
-    "template1Name": "قالب الأعمال الاحترافي",
-    "template2Name": "قالب التعليم التفاعلي",
-    "template3Name": "قالب الإبداع والتصميم",
-    "template4Name": "قالب البساطة والأناقة",
-    "template5Name": "قالب العروض التقديمية المتقدمة",
-    "template6Name": "قالب الشركات الكبرى",
+    "currency": "جنيه",
+    "searchPlaceholder": "ابحث عن القوالب...",
+    "allCategories": "جميع الفئات",
+    "showing": "عرض",
+    "of": "من",
+    "noResults": "لم يتم العثور على قوالب",
+    "tryDifferent": "جرب تعديل البحث أو الفلاتر",
+    "prev": "السابق",
+    "next": "التالي",
+    "sort": {
+      "newest": "الأحدث",
+      "oldest": "الأقدم",
+      "priceLow": "السعر: من الأقل للأعلى",
+      "priceHigh": "السعر: من الأعلى للأقل",
+      "popular": "الأكثر شعبية",
+      "rating": "الأعلى تقييماً"
+    },
     "categories": {
       "all": "الكل",
       "business": "أعمال",
@@ -107,6 +119,28 @@
       "creative": "إبداعي",
       "minimal": "بسيط"
     }
+  },
+  "templateDetail": {
+    "templates": "القوالب",
+    "featured": "مميز",
+    "buyNow": "اشترِ الآن",
+    "getFree": "احصل عليه مجاناً",
+    "download": "تحميل القالب",
+    "processing": "جاري المعالجة..."
+  },
+  "myTemplates": {
+    "title": "قوالبي",
+    "subtitle": "الوصول إلى القوالب التي اشتريتها",
+    "totalTemplates": "إجمالي القوالب",
+    "totalDownloads": "إجمالي التحميلات",
+    "memberSince": "عضو منذ",
+    "noTemplates": "لا توجد قوالب بعد",
+    "noTemplatesDesc": "لم تشترِ أي قوالب بعد. تصفح مجموعتنا للعثور على القالب المثالي.",
+    "browseTemplates": "تصفح القوالب",
+    "purchaseSuccess": "تم الشراء بنجاح!",
+    "downloadReady": "قالبك جاهز للتحميل",
+    "prev": "السابق",
+    "next": "التالي"
   },
   "work": {
     "title": "أعمالي",
@@ -460,6 +494,7 @@
       "links": {
         "addProduct": "إضافة منتج",
         "productList": "قائمة المنتجات",
+        "templates": "القوالب",
         "categories": "الفئات",
         "orders": "الطلبات",
         "promoCodes": "أكواد الخصم",
@@ -491,6 +526,23 @@
       "creatingProduct": "جاري إنشاء المنتج...",
       "productCreated": "تم إنشاء المنتج بنجاح!",
       "errorCreating": "خطأ في إنشاء المنتج. يرجى المحاولة مرة أخرى."
+    },
+    "templates": {
+      "title": "القوالب",
+      "subtitle": "إدارة كتالوج القوالب الخاص بك",
+      "addTemplate": "إضافة قالب",
+      "backToTemplates": "العودة للقوالب",
+      "addTemplateSubtitle": "إنشاء قالب جديد لمتجرك",
+      "searchPlaceholder": "ابحث عن القوالب...",
+      "filters": "الفلاتر",
+      "noTemplates": "لم يتم العثور على قوالب",
+      "noTemplatesDesc": "ابدأ بإضافة قالبك الأول",
+      "template": "القالب",
+      "category": "الفئة",
+      "price": "السعر",
+      "stats": "الإحصائيات",
+      "status": "الحالة",
+      "actions": "الإجراءات"
     },
     "productList": {
       "title": "إدارة المنتجات",
@@ -827,6 +879,40 @@
       "updateError": "فشل تحديث قسم العروض",
       "loadError": "فشل تحميل قسم العروض"
     }
+  },
+  "auth": {
+    "welcomeBack": "مرحباً بعودتك",
+    "signInToAccess": "سجل الدخول للوصول إلى القوالب",
+    "signInDesc": "سجل الدخول بحساب جوجل لشراء وتحميل القوالب",
+    "signInWithGoogle": "المتابعة مع جوجل",
+    "secureSignIn": "تسجيل دخول آمن بواسطة جوجل",
+    "instantDownload": "تحميل فوري",
+    "securePayment": "دفع آمن",
+    "lifetimeAccess": "وصول مدى الحياة",
+    "backToHome": "العودة للرئيسية",
+    "tryAgain": "حاول مرة أخرى",
+    "errorConfiguration": "خطأ في الإعدادات",
+    "errorConfigurationDesc": "يوجد مشكلة في إعدادات الخادم. يرجى الاتصال بالدعم.",
+    "errorAccessDenied": "تم رفض الوصول",
+    "errorAccessDeniedDesc": "ليس لديك صلاحية لتسجيل الدخول. قد يكون هذا بسبب مشكلة مؤقتة. يرجى المحاولة مرة أخرى.",
+    "errorVerification": "خطأ في التحقق",
+    "errorVerificationDesc": "رابط التحقق قد انتهت صلاحيته أو تم استخدامه بالفعل.",
+    "errorOAuthSignin": "خطأ في تسجيل الدخول",
+    "errorOAuthSigninDesc": "خطأ في إنشاء رابط التفويض. يرجى المحاولة مرة أخرى.",
+    "errorOAuthCallback": "خطأ في الاستجابة",
+    "errorOAuthCallbackDesc": "خطأ في معالجة استجابة مزود المصادقة.",
+    "errorOAuthCreateAccount": "خطأ في إنشاء الحساب",
+    "errorOAuthCreateAccountDesc": "تعذر إنشاء حساب مزود OAuth في قاعدة البيانات.",
+    "errorEmailCreateAccount": "خطأ في إنشاء الحساب",
+    "errorEmailCreateAccountDesc": "تعذر إنشاء حساب البريد الإلكتروني في قاعدة البيانات.",
+    "errorCallback": "خطأ في الاستجابة",
+    "errorCallbackDesc": "خطأ في معالج استجابة OAuth.",
+    "errorOAuthAccountNotLinked": "الحساب غير مرتبط",
+    "errorOAuthAccountNotLinkedDesc": "هذا البريد الإلكتروني مرتبط بحساب آخر. يرجى تسجيل الدخول بالمزود الأصلي.",
+    "errorSessionRequired": "الجلسة مطلوبة",
+    "errorSessionRequiredDesc": "يجب تسجيل الدخول للوصول إلى هذه الصفحة.",
+    "errorDefault": "خطأ في المصادقة",
+    "errorDefaultDesc": "حدث خطأ غير متوقع أثناء المصادقة. يرجى المحاولة مرة أخرى."
   },
   "home": {
     "allProducts": "جميع المنتجات",

@@ -42,9 +42,11 @@ export const authOptions: NextAuthOptions = {
               dbUser = await User.create({
                 email: user.email,
                 name: user.name || user.email.split("@")[0],
+                image: user.image || null,
                 isAdmin: shouldBeAdmin || false,
                 cart: [],
                 addresses: [],
+                purchasedTemplates: [],
               });
 
             } catch (createError: unknown) {
@@ -67,14 +69,23 @@ export const authOptions: NextAuthOptions = {
             }
           }
 
+          // Update user's image if it has changed (for existing users)
+          if (dbUser && user.image && dbUser.image !== user.image) {
+            await User.findByIdAndUpdate(dbUser._id, { image: user.image });
+          }
+
           // Store the database user ID in the user object
           if (dbUser && dbUser._id) {
             user.id = dbUser._id.toString();
             user.isAdmin = dbUser.isAdmin || false;
           } else {
+            console.error("[NextAuth] dbUser or dbUser._id is missing");
             return false;
           }
         } catch (error: unknown) {
+          // Log the actual error for debugging
+          console.error("[NextAuth] SignIn error:", error);
+          
           const errorDetails: Record<string, unknown> = {
             email: user?.email,
           };
@@ -83,10 +94,13 @@ export const authOptions: NextAuthOptions = {
             errorDetails.message = error.message;
             errorDetails.stack = error.stack;
             errorDetails.errorName = error.name;
+            console.error("[NextAuth] Error message:", error.message);
+            console.error("[NextAuth] Error stack:", error.stack);
           }
 
           if (error && typeof error === "object" && "code" in error) {
-            errorDetails.errorCode = error.code;
+            errorDetails.errorCode = (error as { code: unknown }).code;
+            console.error("[NextAuth] Error code:", (error as { code: unknown }).code);
           }
 
           // Only deny access for critical errors, not transient issues

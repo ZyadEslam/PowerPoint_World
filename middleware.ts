@@ -131,7 +131,8 @@ export const config = {
 
     // Enable redirects that add missing locales
     // (e.g. `/pathnames` -> `/en/pathnames`)
-    "/((?!_next|_vercel|.*\\..*|api|.*\\.[^.]*$).*)",
+    // Exclude /auth paths (for NextAuth redirect pages)
+    "/((?!_next|_vercel|.*\\..*|api|auth|.*\\.[^.]*$).*)",
 
     // Also match API routes for security middleware
     "/api/:path*",

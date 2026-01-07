@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  image: {
+    type: String,
+    required: false,
+  },
   isAdmin: {
     type: Boolean,
     default: false,
@@ -22,6 +26,14 @@ const userSchema = new mongoose.Schema({
       default: [],
     },
   ],
+  // Purchased templates
+  purchasedTemplates: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Purchase",
+      default: [],
+    },
+  ],
   // Optional: You can also store address references in user
   addresses: [
     {
@@ -30,7 +42,26 @@ const userSchema = new mongoose.Schema({
       default: [],
     },
   ],
+  // User preferences
+  preferences: {
+    newsletter: {
+      type: Boolean,
+      default: false,
+    },
+    notifications: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
+
+// Index for purchased templates lookup
+userSchema.index({ email: 1 });
+userSchema.index({ purchasedTemplates: 1 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;

@@ -24,6 +24,11 @@ const sideNavLinks = [
     translationKey: "addProduct",
   },
   {
+    href: "/dashboard/templates",
+    icon: FolderTree,
+    translationKey: "templates",
+  },
+  {
     href: "/dashboard/product-list",
     icon: List,
     translationKey: "productList",

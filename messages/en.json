@@ -59,6 +59,7 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "myAccount": "My Account",
+    "myTemplates": "My Templates",
     "menu": "Menu",
     "exitDashboard": "Exit Dashboard",
     "exit": "Exit",
@@ -66,7 +67,7 @@
     "closeMenu": "Close menu",
     "adminMode": "Admin Mode",
     "work": "My Work",
-    "logo": "PowerPoint Templates"
+    "logo": "PowerPoint World"
   },
   "hero": {
     "badge": "Professional PowerPoint Templates",
@@ -87,19 +88,30 @@
     }
   },
   "templates": {
-    "title": "Our Premium Templates",
-    "subtitle": "Professional designs for every occasion",
+    "title": "PowerPoint Templates",
+    "subtitle": "Discover our collection of professionally designed templates",
+    "badge": "Premium Templates",
     "viewAll": "View All",
-    "price": "USD",
+    "price": "EGP",
     "buy": "Buy Now",
     "preview": "Preview",
-    "currency": "USD",
-    "template1Name": "Professional Business Template",
-    "template2Name": "Interactive Education Template",
-    "template3Name": "Creative Design Template",
-    "template4Name": "Minimal Elegance Template",
-    "template5Name": "Advanced Presentation Template",
-    "template6Name": "Corporate Template",
+    "currency": "EGP",
+    "searchPlaceholder": "Search templates...",
+    "allCategories": "All Categories",
+    "showing": "Showing",
+    "of": "of",
+    "noResults": "No templates found",
+    "tryDifferent": "Try adjusting your search or filters",
+    "prev": "Previous",
+    "next": "Next",
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "popular": "Most Popular",
+      "rating": "Highest Rated"
+    },
     "categories": {
       "all": "All",
       "business": "Business",
@@ -107,6 +119,28 @@
       "creative": "Creative",
       "minimal": "Minimal"
     }
+  },
+  "templateDetail": {
+    "templates": "Templates",
+    "featured": "Featured",
+    "buyNow": "Buy Now",
+    "getFree": "Get Free",
+    "download": "Download Template",
+    "processing": "Processing..."
+  },
+  "myTemplates": {
+    "title": "My Templates",
+    "subtitle": "Access your purchased templates",
+    "totalTemplates": "Total Templates",
+    "totalDownloads": "Total Downloads",
+    "memberSince": "Member Since",
+    "noTemplates": "No templates yet",
+    "noTemplatesDesc": "You haven't purchased any templates yet. Browse our collection to find the perfect template.",
+    "browseTemplates": "Browse Templates",
+    "purchaseSuccess": "Purchase Successful!",
+    "downloadReady": "Your template is ready to download",
+    "prev": "Previous",
+    "next": "Next"
   },
   "work": {
     "title": "My Work",
@@ -459,6 +493,7 @@
       "footerAccess": "Admin Access",
       "links": {
         "addProduct": "Add Product",
+        "templates": "Templates",
         "productList": "Products List",
         "categories": "Categories",
         "orders": "Orders",
@@ -467,6 +502,23 @@
         "offerSection": "Offer Section",
         "shippingSettings": "Shipping Settings"
       }
+    },
+    "templates": {
+      "title": "Templates",
+      "subtitle": "Manage your template catalog",
+      "addTemplate": "Add Template",
+      "backToTemplates": "Back to Templates",
+      "addTemplateSubtitle": "Create a new template for your store",
+      "searchPlaceholder": "Search templates...",
+      "filters": "Filters",
+      "noTemplates": "No templates found",
+      "noTemplatesDesc": "Start by adding your first template",
+      "template": "Template",
+      "category": "Category",
+      "price": "Price",
+      "stats": "Stats",
+      "status": "Status",
+      "actions": "Actions"
     },
     "addProduct": {
       "badge": "Add Product Mode",
@@ -827,6 +879,17 @@
       "updateError": "Failed to update offer section",
       "loadError": "Failed to load offer section"
     }
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "signInToAccess": "Sign in to access templates",
+    "signInDesc": "Sign in with your Google account to purchase and download templates",
+    "signInWithGoogle": "Continue with Google",
+    "secureSignIn": "Secure sign-in powered by Google",
+    "instantDownload": "Instant Downloads",
+    "securePayment": "Secure Payment",
+    "lifetimeAccess": "Lifetime Access",
+    "backToHome": "Back to Home"
   },
   "home": {
     "allProducts": "All Products",
