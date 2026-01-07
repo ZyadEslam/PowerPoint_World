@@ -330,9 +330,9 @@ const CheckoutPage = () => {
 
   if (!checkoutData || checkoutData.products.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50/50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-md w-full mx-4 text-center">
-          <p className="text-gray-600 mb-4">{t("noCheckoutData")}</p>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="bg-black rounded-2xl shadow-sm border border-gray-800 p-8 max-w-md w-full mx-4 text-center">
+          <p className="text-white mb-4">{t("noCheckoutData")}</p>
           <Link
             href={`/${locale}/cart`}
             className="inline-flex items-center gap-2 text-orange hover:text-orange/80 transition-colors duration-200 font-medium"
@@ -348,7 +348,7 @@ const CheckoutPage = () => {
   const canPlaceOrder = selectedAddress !== null;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-black">
       <LoadingOverlay
         isVisible={isProcessing}
         message={t("processingPayment")}
@@ -364,7 +364,7 @@ const CheckoutPage = () => {
             <ArrowLeft className="w-4 h-4" />
             {t("backToCart")}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
+          <h1 className="text-3xl font-bold text-white">{t("title")}</h1>
         </div>
 
         {orderStatus && (
@@ -396,9 +396,9 @@ const CheckoutPage = () => {
 
           {/* Payment Method Selection - Order 3 on mobile */}
           <div className="lg:col-span-2 order-3 lg:order-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-black rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
               <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                <h2 className="text-xl font-bold text-white mb-6">
                   {t("selectPaymentMethod")}
                 </h2>
 
@@ -408,8 +408,8 @@ const CheckoutPage = () => {
                     onClick={() => setPaymentMethod("cash_on_delivery")}
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       paymentMethod === "cash_on_delivery"
-                        ? "border-orange bg-orange/5"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-orange bg-orange/10"
+                        : "border-gray-800 hover:border-gray-700"
                     }`}
                   >
                     <div className="flex items-start gap-4">
@@ -417,7 +417,7 @@ const CheckoutPage = () => {
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 ${
                           paymentMethod === "cash_on_delivery"
                             ? "border-orange bg-orange"
-                            : "border-gray-300"
+                            : "border-gray-700"
                         }`}
                       >
                         {paymentMethod === "cash_on_delivery" && (
@@ -426,12 +426,12 @@ const CheckoutPage = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <Wallet className="w-5 h-5 text-gray-600" />
-                          <h3 className="font-semibold text-gray-900">
+                          <Wallet className="w-5 h-5 text-[#C9C9C9]" />
+                          <h3 className="font-semibold text-white">
                             {t("cashOnDelivery")}
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-[#C9C9C9]">
                           {t("cashOnDeliveryDesc")}
                         </p>
                       </div>
@@ -452,7 +452,7 @@ const CheckoutPage = () => {
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 ${
                           paymentMethod === "paymob"
                             ? "border-orange bg-orange"
-                            : "border-gray-300"
+                            : "border-gray-700"
                         }`}
                       >
                         {paymentMethod === "paymob" && (
@@ -461,12 +461,12 @@ const CheckoutPage = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <CreditCard className="w-5 h-5 text-gray-600" />
-                          <h3 className="font-semibold text-gray-900">
+                          <CreditCard className="w-5 h-5 text-[#C9C9C9]" />
+                          <h3 className="font-semibold text-white">
                             {t("cardPayment")}
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-[#C9C9C9]">
                           {t("cardPaymentDesc")}
                         </p>
                       </div>
@@ -476,7 +476,7 @@ const CheckoutPage = () => {
 
                 {/* Paymob Payment Form */}
                 {paymentMethod === "paymob" && selectedAddress && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
+                  <div className="mt-6 pt-6 border-t border-gray-800">
                     <PaymobPaymentForm
                       amount={finalTotal}
                       billingData={{
@@ -525,7 +525,7 @@ const CheckoutPage = () => {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={isProcessing || !canPlaceOrder}
-                    className="mt-6 w-full bg-orange py-3 text-white rounded-lg hover:bg-orange/90 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                    className="mt-6 w-full bg-orange py-3 text-white rounded-lg hover:bg-orange/90 disabled:bg-gray-800 disabled:cursor-not-allowed transition-colors font-medium"
                   >
                     {t("placeOrder")}
                   </button>

@@ -133,7 +133,7 @@ const HeroSectionEditor = React.memo(() => {
         setSaving(false);
       }
     },
-    [formData, activeLocale, fetchHeroContent]
+    [formData, activeLocale, fetchHeroContent, t]
   );
 
   // Clear messages after 5 seconds

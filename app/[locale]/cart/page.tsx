@@ -18,7 +18,7 @@ const CartPage = () => {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50/50">
+      <div className="min-h-screen bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header Section */}
           <div className="mb-8">
@@ -27,8 +27,8 @@ const CartPage = () => {
                 <ShoppingCart className="w-6 h-6 text-orange" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{t("yourCart")}</h1>
-                <p className="text-gray-600 mt-1">
+                <h1 className="text-3xl font-bold text-white">{t("yourCart")}</h1>
+                <p className="text-[#C9C9C9] mt-1">
                   {t("shoppingCartEmpty")}
                 </p>
               </div>
@@ -36,15 +36,15 @@ const CartPage = () => {
           </div>
 
           {/* Empty Cart State */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-black rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
             <div className="p-12 text-center">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShoppingCart className="w-12 h-12 text-gray-400" />
+              <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                <ShoppingCart className="w-12 h-12 text-[#C9C9C9]" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-white mb-2">
                 {t("empty")}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-[#C9C9C9] mb-6">
                 {t("addItemsToCart")}
               </p>
               <Link
@@ -72,7 +72,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">
@@ -81,8 +81,8 @@ const CartPage = () => {
               <ShoppingCart className="w-6 h-6 text-orange" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{t("yourCart")}</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold text-white">{t("yourCart")}</h1>
+              <p className="text-[#C9C9C9] mt-1">
                 {getCartItemCount()} {t("itemsInCart")}
               </p>
             </div>
@@ -93,7 +93,7 @@ const CartPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-black rounded-2xl shadow-sm border border-gray-800 overflow-hidden">
               <Suspense
                 fallback={
                   <div className="p-8">
@@ -116,7 +116,7 @@ const CartPage = () => {
           <div className="lg:col-span-1">
             <Suspense
               fallback={
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="bg-black rounded-2xl shadow-sm border border-gray-800 p-6">
                   <LoadingSpinner />
                 </div>
               }

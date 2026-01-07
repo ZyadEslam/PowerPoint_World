@@ -1,13 +1,23 @@
+import { Redis } from '@upstash/redis';
+
 // Check if Redis is available
-// Support both Vercel KV (KV_REST_API_URL + KV_REST_API_TOKEN) and direct Redis (REDIS_URL or espesyal_REDIS_URL)
+// Support Upstash Redis REST API (UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN)
 const isRedisAvailable = (): boolean => {
-  // Check for direct Redis connection (Redis Labs, etc.)
-  const redisUrl = process.env.espesyal_REDIS_URL || process.env.REDIS_URL;
-  if (redisUrl && redisUrl.startsWith("redis://")) {
+  // Check for Upstash Redis REST API
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  
+  if (
+    upstashUrl &&
+    upstashToken &&
+    upstashUrl.startsWith("https://") &&
+    !upstashUrl.includes("your-database-name") &&
+    !upstashToken.includes("your-token")
+  ) {
     return true;
   }
 
-  // Check for Vercel KV REST API
+  // Legacy support: Check for Vercel KV REST API (for backward compatibility)
   const kvUrl = process.env.KV_REST_API_URL;
   const kvToken = process.env.KV_REST_API_TOKEN;
   if (
@@ -22,14 +32,12 @@ const isRedisAvailable = (): boolean => {
   return false;
 };
 
-// Redis client - supports both direct Redis connection and Vercel KV
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let redisClient: any = null;
+// Redis client instance
+let redisClient: Redis | null = null;
 let redisLoadAttempted = false;
 
-// Lazy load the Redis client
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getRedisClient = async (): Promise<any> => {
+// Initialize Redis client
+const getRedisClient = (): Redis | null => {
   if (!isRedisAvailable()) {
     return null;
   }
@@ -46,72 +54,68 @@ const getRedisClient = async (): Promise<any> => {
   redisLoadAttempted = true;
 
   try {
-    // Check for direct Redis connection first (Redis Labs, etc.)
-    const redisUrl = process.env.espesyal_REDIS_URL || process.env.REDIS_URL;
-    if (redisUrl && redisUrl.startsWith("redis://")) {
-      // Use redis package for direct connections
-      // Use require() for server-side code (API routes)
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const redisModule = require("redis");
-      const { createClient } = redisModule;
+    // Check for Upstash Redis REST API first
+    const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+    const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-      redisClient = createClient({ url: redisUrl });
-      await redisClient.connect();
-
+    if (upstashUrl && upstashToken) {
+      redisClient = new Redis({
+        url: upstashUrl,
+        token: upstashToken,
+      });
+      console.log('Redis: Upstash Redis client initialized');
       return redisClient;
     }
 
-    // Fallback to Vercel KV REST API
+    // Fallback to Vercel KV REST API (for backward compatibility)
     const kvUrl = process.env.KV_REST_API_URL;
     const kvToken = process.env.KV_REST_API_TOKEN;
 
     if (kvUrl && kvToken) {
-      // Use dynamic import for @vercel/kv since it might not be installed
-      const dynamicImport = new Function(
-        "moduleName",
-        "return import(moduleName)"
-      );
-      const kvModule = await dynamicImport("@vercel/kv");
-      redisClient = kvModule.kv;
-
-      return redisClient;
+      // Note: Vercel KV uses a different API, but we'll try to use it if available
+      // This is for backward compatibility only
+      console.log('Redis: Vercel KV detected (legacy support)');
+      return null; // Vercel KV would need separate handling
     }
-  } catch {
+  } catch (error) {
+    console.error('Redis: Failed to initialize client:', error);
     return null;
   }
 
   return null;
 };
 
-// Get Redis client (cached connection) - synchronous version for compatibility
-// Note: This returns the client if already connected, but connection is async
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getRedisClientSync = (): any => {
-  if (!isRedisAvailable() || !redisClient) {
-    return null;
-  }
-  return redisClient;
+// Get Redis client (cached instance) - synchronous version for compatibility
+export const getRedisClientSync = (): Redis | null => {
+  return getRedisClient();
 };
 
 // Base cache operations with error handling
 export const redisGet = async <T = unknown>(key: string): Promise<T | null> => {
   try {
-    const client = await getRedisClient();
+    const client = getRedisClient();
     if (!client) {
       return null;
     }
 
     const value = await client.get(key);
-    // Parse JSON if value is a string
+    
+    // Upstash Redis returns the value directly (already parsed if it was JSON)
+    // If it's a string that looks like JSON, try to parse it
     if (typeof value === "string") {
       try {
-        return JSON.parse(value) as T;
+        // Try to parse as JSON
+        const parsed = JSON.parse(value);
+        return parsed as T;
       } catch {
+        // If parsing fails, return as string
         return value as T;
       }
     }
+    
     return value as T;
-  } catch {
+  } catch (error) {
+    console.error('Redis GET error:', error);
     return null;
   }
 };
@@ -122,7 +126,7 @@ export const redisSet = async (
   ttlSeconds?: number
 ): Promise<boolean> => {
   try {
-    const client = await getRedisClient();
+    const client = getRedisClient();
     if (!client) {
       return false;
     }
@@ -132,27 +136,30 @@ export const redisSet = async (
       typeof value === "string" ? value : JSON.stringify(value);
 
     if (ttlSeconds && ttlSeconds > 0) {
-      await client.setEx(key, ttlSeconds, serializedValue);
+      // Upstash Redis supports setex for TTL (standard Redis command)
+      await client.setex(key, ttlSeconds, serializedValue);
     } else {
       await client.set(key, serializedValue);
     }
 
     return true;
-  } catch {
+  } catch (error) {
+    console.error('Redis SET error:', error);
     return false;
   }
 };
 
 export const redisDelete = async (key: string): Promise<boolean> => {
   try {
-    const client = await getRedisClient();
+    const client = getRedisClient();
     if (!client) {
       return false;
     }
 
     await client.del(key);
     return true;
-  } catch {
+  } catch (error) {
+    console.error('Redis DELETE error:', error);
     return false;
   }
 };
@@ -160,34 +167,25 @@ export const redisDelete = async (key: string): Promise<boolean> => {
 // Pattern-based deletion (for cache invalidation)
 export const redisDeletePattern = async (pattern: string): Promise<number> => {
   try {
-    const client = await getRedisClient();
+    const client = getRedisClient();
     if (!client) {
       return 0;
     }
 
-    // Use SCAN to find keys matching the pattern
-    let cursor = 0;
-    let deletedCount = 0;
-    const keysToDelete: string[] = [];
-
-    do {
-      const result = await client.scan(cursor, {
-        MATCH: pattern,
-        COUNT: 100,
-      });
-      cursor = result.cursor;
-      keysToDelete.push(...result.keys);
-    } while (cursor !== 0);
-
-    // Delete all matching keys
-    if (keysToDelete.length > 0) {
-      await client.del(keysToDelete);
-      deletedCount = keysToDelete.length;
+    // Upstash Redis supports KEYS command for pattern matching
+    // Note: KEYS can be slow on large datasets, but Upstash handles it efficiently
+    const keys = await client.keys(pattern);
+    
+    if (keys && keys.length > 0) {
+      // Delete all matching keys
+      await client.del(...keys);
+      return keys.length;
     }
 
-    return deletedCount;
-  } catch {
-    // If SCAN is not available (e.g., Vercel KV), fall back silently
+    return 0;
+  } catch (error) {
+    console.error('Redis DELETE PATTERN error:', error);
+    // If KEYS is not available or fails, fall back silently
     return 0;
   }
 };

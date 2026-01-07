@@ -250,35 +250,35 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
 
   return (
     <div className="w-full md:w-1/2 mt-6 md:mt-0">
-      <h1 className="sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">
+      <h1 className="sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-white">
         {data.name}
       </h1>
 
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
         <RatingStars rating={data.rating} />
-        <span className="text-xs sm:text-sm text-gray-600">{data.rating}</span>
+        <span className="text-xs sm:text-sm text-[#C9C9C9]">{data.rating}</span>
       </div>
 
-      <p className="md:text-[15px] sm:text-sm text-gray-600 mb-3 sm:mb-4">
+      <p className="md:text-[15px] sm:text-sm text-[#C9C9C9] mb-3 sm:mb-4">
         {data.description}
       </p>
 
-      <p className="text-xl sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6">
+      <p className="text-xl sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-white">
         {data.price} {tCommon("currency")}
         {data.oldPrice && (
-          <span className="text-gray-400 font-normal text-sm ml-2 line-through">
+          <span className="text-[#C9C9C9] font-normal text-sm ml-2 line-through">
             {data.oldPrice} {tCommon("currency")}
           </span>
         )}
       </p>
 
-      <hr className="my-4 sm:my-5 md:my-6 border-gray-200" />
+      <hr className="my-4 sm:my-5 md:my-6 border-gray-800" />
 
       {variants.length > 0 && (
         <>
           {/* Color Selection */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+            <h3 className="text-sm font-semibold text-white mb-3">
               {t("color")}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -301,8 +301,8 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
                   }}
                   className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
                     selectedColor === color.color
-                      ? "bg-secondary text-white border-secondary"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange"
+                      ? "bg-primary-500 text-white border-primary-500"
+                      : "bg-black text-white border-gray-700 hover:border-orange hover:text-orange"
                   }`}
                 >
                   {color.color}
@@ -313,7 +313,7 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
 
           {/* Size Selection */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+            <h3 className="text-sm font-semibold text-white mb-3">
               {t("size")}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -323,8 +323,8 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
                   onClick={() => setSelectedSize(option.size)}
                   className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
                     selectedSize === option.size
-                      ? "bg-secondary text-white border-orange"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-orange hover:text-orange"
+                      ? "bg-primary-500 text-white border-primary-500"
+                      : "bg-black text-white border-gray-700 hover:border-orange hover:text-orange"
                   } ${
                     option.available === 0
                       ? "opacity-50 cursor-not-allowed"
@@ -343,10 +343,10 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                  <h4 className="text-sm font-semibold text-white mb-1">
                     {t("stockAvailability") || "Stock Availability"}
                   </h4>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-[#C9C9C9]">
                     {selectedColor} • {selectedSize}
                   </p>
                 </div>
@@ -369,18 +369,18 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
 
       {/* Quantity Selection */}
       <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">
+        <h3 className="text-sm font-semibold text-white mb-3">
           {t("quantity")}
         </h3>
         <div className="flex items-center gap-3">
           <button
             onClick={() => handleQuantityChange(quantity - 1)}
             disabled={quantity <= 1}
-            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
           >
             <Minus className="w-4 h-4" />
           </button>
-          <span className="w-12 text-center font-semibold text-lg">
+          <span className="w-12 text-center font-semibold text-lg text-white">
             {quantity}
           </span>
           <button
@@ -389,13 +389,13 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
               quantity >= 10 ||
               (availableQuantity ? quantity >= availableQuantity : false)
             }
-            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
           >
             <Plus className="w-4 h-4" />
           </button>
         </div>
         {!hasVariants && data.totalStock !== undefined && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-[#C9C9C9] mt-1">
             {data.totalStock > 0
               ? `${data.totalStock} ${t("itemsAvailable") || "items available"}`
               : t("outOfStock") || "Out of stock"}
@@ -405,22 +405,22 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
 
       <div className="md:space-y-1 text-[14px] sm:space-y-3 mb-4 sm:mb-6">
         <div className="flex">
-          <span className="w-20 text-gray-600 sm:w-24 font-medium">
+          <span className="w-20 text-white sm:w-24 font-medium">
             {t("brand")}:
           </span>
-          <span className="text-gray-400">{data.brand}</span>
+          <span className="text-[#C9C9C9]">{data.brand}</span>
         </div>
         <div className="flex">
-          <span className="w-20 text-gray-600 sm:w-24 font-medium">
+          <span className="w-20 text-white sm:w-24 font-medium">
             {t("color")}:
           </span>
-          <span className="text-gray-400">{data.color}</span>
+          <span className="text-[#C9C9C9]">{data.color}</span>
         </div>
         <div className="flex">
-          <span className="w-20 text-gray-600 sm:w-24 font-medium">
+          <span className="w-20 text-white sm:w-24 font-medium">
             {t("category")}:
           </span>
-          <span className="text-gray-400">{data.category}</span>
+          <span className="text-[#C9C9C9]">{data.category}</span>
         </div>
       </div>
 
@@ -428,7 +428,7 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
         <button
           className={`group relative w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg ${
             isAddToCartDisabled
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed shadow-none hover:shadow-none"
+              ? "bg-gray-800 text-[#C9C9C9] cursor-not-allowed shadow-none hover:shadow-none"
               : hasVariants
               ? selectedVariant &&
                 isInCart(data._id as string, selectedVariant._id)
@@ -476,7 +476,7 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
         <button
           className={`group relative w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg ${
             isAddToCartDisabled
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed shadow-none hover:shadow-none"
+              ? "bg-gray-800 text-[#C9C9C9] cursor-not-allowed shadow-none hover:shadow-none"
               : "bg-gradient-to-r from-secondary to-secondary/90 text-white hover:from-secondary/90 hover:to-secondary"
           }`}
           onClick={handleBuyNow}
@@ -490,10 +490,10 @@ const ProductDetails = ({ data }: { data: ProductCardProps }) => {
       {/* Selection Summary */}
       {(selectedSize || selectedColor) && (
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">
+          <h4 className="text-sm font-semibold text-white mb-2">
             {t("selectedOptions")}:
           </h4>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-[#C9C9C9]">
             {selectedSize && (
               <p>
                 {t("size")}: {selectedSize}

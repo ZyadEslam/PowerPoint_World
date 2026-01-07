@@ -153,20 +153,20 @@ const CheckoutOrderSummary = ({
   }, [subtotal, discountAmount, shippingFee]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+    <div className="bg-black rounded-2xl shadow-sm border border-gray-800 overflow-hidden sticky top-8">
       <div className="p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">
+        <h2 className="text-xl font-bold text-white mb-6">
           {tCheckout("orderSummary")}
         </h2>
 
         {/* Product List */}
-        <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
+        <div className="space-y-4 mb-6 pb-6 border-b border-gray-800">
           {products.map((product, index) => {
             const quantity = product.quantityInCart || 1;
             const productTotal = (product.price || 0) * quantity;
             return (
               <div key={product._id || index} className="flex gap-3">
-                <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="relative w-16 h-16 bg-gray-900 rounded-lg overflow-hidden flex-shrink-0">
                   {product._id ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -183,7 +183,7 @@ const CheckoutOrderSummary = ({
                         const parent = target.parentElement;
                         if (parent) {
                           parent.innerHTML = `
-                            <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                            <div class="w-full h-full flex items-center justify-center text-[#C9C9C9] text-xs">
                               ${tCommon("noImage")}
                             </div>
                           `;
@@ -191,29 +191,29 @@ const CheckoutOrderSummary = ({
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                    <div className="w-full h-full flex items-center justify-center text-[#C9C9C9] text-xs">
                       {tCommon("noImage")}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+                  <h3 className="font-medium text-white text-sm line-clamp-2">
                     {product.name}
                   </h3>
                   {(product.selectedColor || product.selectedSize) && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-[#C9C9C9] mt-1">
                       {product.selectedColor && `${product.selectedColor}`}
                       {product.selectedColor && product.selectedSize && " • "}
                       {product.selectedSize && `${product.selectedSize}`}
                     </p>
                   )}
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-[#C9C9C9] mt-1">
                     {tCart("quantity")}: {quantity} ×{" "}
                     {product.price?.toFixed(2)} {tCommon("currency")}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-white">
                     {productTotal.toFixed(2)} {tCommon("currency")}
                   </p>
                 </div>
@@ -224,7 +224,7 @@ const CheckoutOrderSummary = ({
 
         {/* Promo Code */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             {tCart("promoCode")}
           </label>
           {appliedPromoCode ? (
@@ -262,7 +262,7 @@ const CheckoutOrderSummary = ({
                     handleApplyPromoCode();
                   }
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange"
+                className="flex-1 px-3 py-2 border border-gray-700 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-orange"
               />
               <button
                 type="button"
@@ -282,16 +282,16 @@ const CheckoutOrderSummary = ({
         {/* Order Totals */}
         <div className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-gray-600">
+            <span className="text-[#C9C9C9]">
               {tCheckout("items")} ({totalItems})
             </span>
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-white">
               {subtotal.toFixed(2)} {tCommon("currency")}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-600">{tCheckout("shipping")}</span>
+            <span className="text-[#C9C9C9]">{tCheckout("shipping")}</span>
             <span className="font-semibold text-green-600">
               {shippingFee > 0
                 ? `${shippingFee.toFixed(2)} ${tCommon("currency")}`
@@ -301,7 +301,7 @@ const CheckoutOrderSummary = ({
 
           {appliedPromoCode && discountAmount > 0 && (
             <div className="flex justify-between text-green-600">
-              <span className="text-gray-600">
+              <span className="text-[#C9C9C9]">
                 {tCheckout("discount")} ({appliedPromoCode})
               </span>
               <span className="font-semibold">
@@ -310,13 +310,13 @@ const CheckoutOrderSummary = ({
             </div>
           )}
 
-          <hr className="border-gray-200" />
+          <hr className="border-gray-800" />
 
           <div className="flex justify-between">
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-lg font-bold text-white">
               {tCheckout("total")}
             </span>
-            <span className="text-xl font-bold text-gray-900">
+            <span className="text-xl font-bold text-white">
               {totalPrice.toFixed(2)} {tCommon("currency")}
             </span>
           </div>

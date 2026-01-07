@@ -176,7 +176,7 @@ const UserNav = memo(() => {
                 {/* Cart Icon */}
                 <Link
                   href={getLocalizedPath("/cart")}
-                  className="relative p-2 text-gray-700 hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/5"
+                  className="relative p-2 text-white hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/10"
                   title={t("shoppingCart")}
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -191,7 +191,7 @@ const UserNav = memo(() => {
                 {session && session.user && session.user.id && (
                   <Link
                     href={getLocalizedPath("/my-orders")}
-                    className="hidden md:block p-2 text-gray-700 hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/5"
+                    className="hidden md:block p-2 text-white hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/10"
                     title={tOrders("myOrders")}
                   >
                     <Package className="w-5 h-5" />
@@ -201,12 +201,12 @@ const UserNav = memo(() => {
                 {/* User Icon with Signout - Hidden on mobile */}
                 {session?.user && (
                   <div className="hidden md:flex items-center gap-2">
-                    <div className="flex items-center justify-center text-gray-700 hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/5 p-2">
+                    <div className="flex items-center justify-center text-white hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/10 p-2">
                       <User className="w-5 h-5 font-semibold" />
                     </div>
                     <button
                       onClick={handleSignout}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/5"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:text-primary transition-all duration-300 rounded-lg hover:bg-primary/10"
                       title={t("signOut")}
                     >
                       <LogOut className="w-4 h-4" />
@@ -232,7 +232,7 @@ const UserNav = memo(() => {
 
                     {/* Menu Panel - Slides from Left/Right based on locale */}
                     <div
-                      className={`fixed top-0 h-full w-80 max-w-[85vw] lg:max-w-md bg-white shadow-2xl transform transition-transform duration-300 ${
+                      className={`fixed top-0 h-full w-80 max-w-[85vw] lg:max-w-md bg-black shadow-2xl transform transition-transform duration-300 border-r border-gray-800 ${
                         isArabic
                           ? `right-0 ${
                               isMenuOpen ? "translate-x-0" : "translate-x-full"
@@ -244,17 +244,17 @@ const UserNav = memo(() => {
                     >
                       <div className="flex flex-col h-full">
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                          <span className="text-lg font-semibold text-gray-900">
+                        <div className="flex items-center justify-between p-6 border-b border-gray-800">
+                          <span className="text-lg font-semibold text-white">
                             {t("menu")}
                           </span>
                           <button
                             onClick={closeMenu}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label={t("closeMenu")}
                           >
                             <svg
-                              className="w-5 h-5 text-gray-600"
+                              className="w-5 h-5 text-white"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -273,21 +273,21 @@ const UserNav = memo(() => {
                         <div className="flex-1 px-6 py-8 space-y-4 overflow-y-auto">
                           <Link
                             href={getLocalizedPath("/")}
-                            className="block text-lg font-medium text-gray-700 hover:text-primary transition-colors duration-300 py-2"
+                            className="block text-lg font-medium text-white hover:text-primary transition-colors duration-300 py-2"
                             onClick={closeMenu}
                           >
                             {t("home")}
                           </Link>
                           <Link
                             href={getLocalizedPath("/shop")}
-                            className="block text-lg font-medium text-gray-700 hover:text-primary transition-colors duration-300 py-2"
+                            className="block text-lg font-medium text-white hover:text-primary transition-colors duration-300 py-2"
                             onClick={closeMenu}
                           >
                             {t("shop")}
                           </Link>
                           <Link
                             href={getLocalizedPath("/about")}
-                            className="block text-lg font-medium text-gray-700 hover:text-primary transition-colors duration-300 py-2"
+                            className="block text-lg font-medium text-white hover:text-primary transition-colors duration-300 py-2"
                             onClick={closeMenu}
                           >
                             {t("about")}
@@ -297,7 +297,7 @@ const UserNav = memo(() => {
                           {session && session.user && session.user.id && (
                             <Link
                               href={getLocalizedPath("/my-orders")}
-                              className="flex items-center gap-3 text-lg font-medium text-gray-700 hover:text-primary transition-colors duration-300 py-2"
+                              className="flex items-center gap-3 text-lg font-medium text-white hover:text-primary transition-colors duration-300 py-2"
                               onClick={closeMenu}
                             >
                               <Package className="w-5 h-5" />
@@ -317,7 +317,7 @@ const UserNav = memo(() => {
                           )}
 
                           {/* Auth Buttons */}
-                          <div className="pt-6 border-t border-gray-200 mt-6">
+                          <div className="pt-6 border-t border-gray-800 mt-6">
                             <AuthButtons screen="mobile" />
                           </div>
                         </div>
@@ -340,22 +340,22 @@ const UserNav = memo(() => {
               {/* Dashboard Badge */}
               <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange/10 to-orange/5 border border-orange/20 rounded-xl">
                 <div className="w-2 h-2 bg-orange rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-white">
                   {t("adminMode")}
                 </span>
               </div>
 
               {/* User Info */}
               {session?.user && (
-                <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-gray-900 rounded-xl border border-gray-800">
                   <div className="w-8 h-8 bg-gradient-to-br from-orange to-orange/80 rounded-full flex items-center justify-center shadow-md">
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium text-gray-900 leading-tight">
+                    <span className="text-xs font-medium text-white leading-tight">
                       {session.user.name || session.user.email?.split("@")[0]}
                     </span>
-                    <span className="text-xs text-gray-500">Admin</span>
+                    <span className="text-xs text-[#C9C9C9]">Admin</span>
                   </div>
                 </div>
               )}
@@ -363,7 +363,7 @@ const UserNav = memo(() => {
               {/* Exit Button */}
               <Link
                 href={getLocalizedPath("/")}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 text-gray-700 text-sm font-medium rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 group"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white text-sm font-medium rounded-xl border border-gray-800 hover:border-gray-700 hover:shadow-md transition-all duration-300 group"
               >
                 <svg
                   className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1"

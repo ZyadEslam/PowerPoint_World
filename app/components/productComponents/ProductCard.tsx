@@ -73,7 +73,7 @@ const ProductCard = memo(
     const hasDiscount = discountPercentage !== null && discountPercentage > 0;
 
     return (
-      <div className="group relative bg-white rounded-2xl transition-all duration-300 overflow-hidden h-full flex flex-col mb-2 sm:mb-4 border border-primary-100 hover:border-primary-200 shadow-sm hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1">
+      <div className="group relative bg-black rounded-2xl transition-all duration-300 overflow-hidden h-full flex flex-col mb-2 sm:mb-4 border border-gray-800 hover:border-primary-500 shadow-sm hover:shadow-lg hover:shadow-primary-500/20 hover:-translate-y-1">
         {/* Product Link */}
         <Link href={`/product/${product._id}`} className="h-full flex flex-col">
           {/* Product Image Container */}
@@ -126,8 +126,8 @@ const ProductCard = memo(
               ) : (
                 <Suspense
                   fallback={
-                    <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">
+                    <div className="w-full h-full bg-gray-900 animate-pulse flex items-center justify-center">
+                      <span className="text-[#C9C9C9] text-sm">
                         {t("loading")}
                       </span>
                     </div>
@@ -147,8 +147,8 @@ const ProductCard = memo(
                 </Suspense>
               )
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400 text-sm">No image</span>
+              <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                <span className="text-[#C9C9C9] text-sm">No image</span>
               </div>
             )}
 
@@ -159,7 +159,7 @@ const ProductCard = memo(
           {/* Product Details */}
           <div className="p-2 sm:p-4 space-y-1.5 sm:space-y-3 flex-1 flex flex-col">
             {/* Product Name */}
-            <h3 className="font-semibold text-gray-900 text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-primary-500 transition-colors duration-200">
+            <h3 className="font-semibold text-white text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-primary-500 transition-colors duration-200">
               {product.name}
             </h3>
 
@@ -167,11 +167,11 @@ const ProductCard = memo(
             <div className="flex items-center justify-start pt-1 sm:pt-2 mt-auto">
               <div className="flex flex-col gap-0.5 sm:gap-1">
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                  <span className="font-bold text-sm sm:text-lg text-primary-600">
+                  <span className="font-bold text-sm sm:text-lg text-primary-500">
                     {product.price} {t("currency")}
                   </span>
                   {product.oldPrice && product.oldPrice > product.price && (
-                    <span className="text-[10px] sm:text-sm text-gray-400 line-through">
+                    <span className="text-[10px] sm:text-sm text-[#C9C9C9] line-through">
                       {product.oldPrice} {t("currency")}
                     </span>
                   )}

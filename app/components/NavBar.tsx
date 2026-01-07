@@ -20,10 +20,10 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { href: '#home', label: t('nav.home') },
-    { href: '#templates', label: t('nav.templates') },
-    { href: '#about', label: t('nav.about') },
-    { href: '#pricing', label: t('nav.pricing') },
+    { href: '#home', label: t('home') },
+    { href: '#templates', label: t('templates') },
+    { href: '#about', label: t('about') },
+    { href: '#pricing', label: t('pricing') },
   ];
 
   return (
@@ -72,10 +72,10 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             <LanguageSwitcher />
             <button  className="font-medium">
-              {t('nav.login')}
+              {t('login')}
             </button>
             <button className="btn-gradient rounded-full px-6">
-              {t('nav.signup')}
+              {t('signup')}
             </button>
           </div>
 
@@ -116,10 +116,10 @@ const Navbar = () => {
                   <LanguageSwitcher />
                   <div className="flex gap-3">
                     <button  className="flex-1">
-                      {t('nav.login')}
+                      {t('login')}
                     </button>
                     <button className="btn-gradient flex-1">
-                      {t('nav.signup')}
+                      {t('signup')}
                     </button>
                   </div>
                 </div>

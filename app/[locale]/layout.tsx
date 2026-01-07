@@ -9,15 +9,12 @@ import "../instrumentation-client";
 import AuthProvider from "../components/providers/AuthProvider";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../lib/auth";
-import { Footer, 
-  // UserNav
-  // , TopNav
- } from "../components";
 import CtxProviders from "../components/providers/CtxProvider";
 import { PerformanceMonitor } from "../components/seo/PerformanceOptimizations";
 import { DashboardMenuProvider } from "../context/dashboardMenuCtx";
 import { routing } from "../../routing";
-import Navbar from "../components/NavBar";
+import PowerPointNavbar from "../components/PowerPointNavbar";
+import PowerPointFooter from "../components/PowerPointFooter";
 
 const outfit = localFont({
   src: "../../fonts/Tajawal/Tajawal-Regular.ttf",
@@ -34,9 +31,9 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Espesyal Shop - Premium E-commerce Store",
+  title: "PowerPoint Templates - قوالب باوربوينت احترافية",
   description:
-    "Discover premium quality products at Espesyal Shop. We offer exceptional customer service and a curated selection of high-quality goods for your lifestyle needs.",
+    "اكتشف مجموعة متميزة من قوالب الباوربوينت المصممة باحترافية عالية لتجعل عروضك التقديمية مميزة ولا تُنسى",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
@@ -67,7 +64,20 @@ export default async function LocaleLayout({
 
   // Load messages for the current locale
   const messages = await getMessages();
-  const session = await getServerSession(authOptions);
+  
+  // Get session with error handling for JWT decryption failures
+  // This can happen if NEXTAUTH_SECRET changed or there are old session cookies
+  let session = null;
+  try {
+    session = await getServerSession(authOptions);
+  } catch (error) {
+    // Log the error in development, but don't crash the app
+    if (process.env.NODE_ENV === "development") {
+      console.error("[NextAuth] Session error:", error);
+    }
+    // If JWT decryption fails, treat as no session (user will need to sign in again)
+    session = null;
+  }
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
@@ -105,11 +115,9 @@ export default async function LocaleLayout({
             <CtxProviders>
               <DashboardMenuProvider>
                 <PerformanceMonitor />
-                {/* <TopNav /> */}
-                {/* <UserNav /> */}
-                <Navbar />
+                <PowerPointNavbar />
                 <main>{children}</main>
-                <Footer />
+                <PowerPointFooter />
               </DashboardMenuProvider>
             </CtxProviders>
           </AuthProvider>

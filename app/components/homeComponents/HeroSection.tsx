@@ -512,7 +512,7 @@ const HeroSection = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6"
             >
               <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">{t('hero.badge')}</span>
+              <span className="text-sm font-medium">{t('badge')}</span>
             </motion.div>
 
             <motion.h1
@@ -521,14 +521,14 @@ const HeroSection = () => {
             >
               {t('title')}
               <br />
-              <span className="gradient-text">{t('hero.titleHighlight')}</span>
+              <span className="gradient-text">{t('titleHighlight')}</span>
             </motion.h1>
 
             <motion.p
               // variants={itemVariants}
               className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8"
             >
-              {t('hero.subtitle')}
+              {t('subtitle')}
             </motion.p>
 
             <motion.div
@@ -562,9 +562,9 @@ const HeroSection = () => {
               className="flex flex-wrap justify-center lg:justify-start gap-8 mt-12"
             >
               {[
-                { icon: Sparkles, value: '150+', label: t('hero.stats.templates') },
-                { icon: Users, value: '2,500+', label: t('hero.stats.customers') },
-                { icon: Star, value: '4.9', label: t('hero.stats.rating') },
+                { icon: Sparkles, value: '150+', label: t('stats.templates') },
+                { icon: Users, value: '2,500+', label: t('stats.customers') },
+                { icon: Star, value: '4.9', label: t('stats.rating') },
               ].map((stat, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
