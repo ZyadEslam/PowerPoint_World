@@ -314,7 +314,7 @@ const PowerPointTemplatesGrid = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.6 }}
         >
-          <Link href={getLocalizedPath('/shop')}>
+          <Link href={getLocalizedPath('/templates')}>
             <button className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-lg overflow-hidden bg-gradient-to-r from-primary-500 to-primary-600 text-black hover:from-primary-400 hover:to-primary-500 transition-all hover:scale-105 active:scale-95">
               <span className="flex items-center gap-2">
                 {t('viewAll') || 'Explore All Templates'}

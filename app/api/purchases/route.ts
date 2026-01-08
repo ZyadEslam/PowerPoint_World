@@ -94,20 +94,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already owns this template
-    const existingPurchase = await Purchase.findOne({
+    // Check if user already owns this template (paid and active)
+    const existingPaidPurchase = await Purchase.findOne({
       userId: session.user.id,
       templateId,
       paymentStatus: "paid",
       status: "active",
     });
 
-    if (existingPurchase) {
+    if (existingPaidPurchase) {
       return NextResponse.json(
         { error: "You already own this template" },
         { status: 400 }
       );
     }
+
+    // Check for existing pending/failed purchases - reuse them instead of creating new
+    const existingPendingPurchase = await Purchase.findOne({
+      userId: session.user.id,
+      templateId,
+      paymentStatus: { $in: ["pending", "failed"] },
+    });
 
     // Calculate price (can add promo code logic here)
     const purchasePrice = template.price;
@@ -118,25 +125,57 @@ export async function POST(req: NextRequest) {
       // Promo code logic here
     }
 
-    // Create purchase record
-    const purchase = new Purchase({
-      userId: session.user.id,
-      templateId: template._id,
-      templateSnapshot: {
+    // Helper function to generate receipt number
+    const generateReceiptNumber = () => {
+      const date = new Date();
+      const year = date.getFullYear().toString().slice(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+      return `PPT-${year}${month}${day}-${random}`;
+    };
+
+    let purchase;
+
+    if (existingPendingPurchase) {
+      // Update the existing pending/failed purchase instead of creating new one
+      existingPendingPurchase.paymentStatus = "pending";
+      existingPendingPurchase.purchasePrice = purchasePrice;
+      existingPendingPurchase.originalPrice = template.oldPrice || template.price;
+      existingPendingPurchase.discountAmount = discountAmount;
+      existingPendingPurchase.promoCode = promoCode || undefined;
+      // Update snapshot in case template was updated
+      existingPendingPurchase.templateSnapshot = {
         name: template.name,
         thumbnail: template.thumbnail,
         fileUrl: template.fileUrl,
         fileName: template.fileName,
         categoryName: template.categoryName,
-      },
-      purchasePrice,
-      originalPrice: template.oldPrice || template.price,
-      discountAmount,
-      promoCode: promoCode || undefined,
-      paymentStatus: "pending",
-    });
+      };
+      await existingPendingPurchase.save();
+      purchase = existingPendingPurchase;
+    } else {
+      // Create new purchase record with explicit receipt number
+      purchase = new Purchase({
+        userId: session.user.id,
+        templateId: template._id,
+        templateSnapshot: {
+          name: template.name,
+          thumbnail: template.thumbnail,
+          fileUrl: template.fileUrl,
+          fileName: template.fileName,
+          categoryName: template.categoryName,
+        },
+        purchasePrice,
+        originalPrice: template.oldPrice || template.price,
+        discountAmount,
+        promoCode: promoCode || undefined,
+        paymentStatus: "pending",
+        receiptNumber: generateReceiptNumber(), // Generate receipt number explicitly
+      });
 
-    await purchase.save();
+      await purchase.save();
+    }
 
     return NextResponse.json({
       message: "Purchase initiated",

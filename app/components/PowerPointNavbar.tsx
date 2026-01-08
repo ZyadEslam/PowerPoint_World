@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 import {
   Menu,
   X,
@@ -21,6 +22,7 @@ import { useSession, signOut } from "next-auth/react";
 const PowerPointNavbar = () => {
   const t = useTranslations("nav");
   const locale = useLocale();
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const [position, setPosition] = useState({
     left: 0,
@@ -75,6 +77,13 @@ const PowerPointNavbar = () => {
     signOut({ callbackUrl: `/${locale}` });
   };
 
+  // Hide navbar on dashboard pages (dashboard has its own navigation)
+  const isDashboardPage = pathname?.includes("/dashboard");
+
+  if (isDashboardPage) {
+    return null;
+  }
+
   return (
     <>
       <nav
@@ -82,28 +91,6 @@ const PowerPointNavbar = () => {
           isScrolled ? "py-2" : "py-4"
         }`}
       >
-        {/* Glassmorphism background */}
-        <div
-          className={`absolute inset-0 backdrop-blur-xl transition-opacity duration-300 ${
-            isScrolled ? "opacity-100" : "opacity-0"
-          }`}
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%)",
-          }}
-        />
-
-        {/* Static border at bottom */}
-        <div
-          className={`absolute bottom-0 left-0 right-0 h-px transition-opacity duration-300 ${
-            isScrolled ? "opacity-100" : "opacity-0"
-          }`}
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(255, 165, 0, 0.5), transparent)",
-          }}
-        />
-
         <div className="relative mx-auto flex items-center justify-center px-4">
           <ul
             onMouseLeave={handleMouseLeave}

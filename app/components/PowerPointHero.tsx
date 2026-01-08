@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Star, Sparkles, Zap, ChevronDown } from "lucide-react";
 import Image from "next/image";
 
@@ -27,24 +27,6 @@ const AnimatedText = ({
   );
 };
 
-// Simple border glow - CSS only
-const GlowingBorder = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="relative group">
-      {/* Static gradient border */}
-      <div
-        className="absolute -inset-1 rounded-2xl opacity-75"
-        style={{
-          background:
-            "linear-gradient(90deg, #FFA500, #FF6B00, #FF8C00, #FFB84D, #FFA500)",
-        }}
-      />
-      <div className="relative rounded-2xl overflow-hidden bg-black">
-        {children}
-      </div>
-    </div>
-  );
-};
 
 // Holographic card effect - simplified
 const HolographicImage = ({ src, alt }: { src: string; alt: string }) => {
@@ -87,9 +69,8 @@ const HolographicImage = ({ src, alt }: { src: string; alt: string }) => {
         transform: `rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`,
       }}
     >
-      <GlowingBorder>
         <div className="relative w-full aspect-square overflow-hidden">
-          <Image src={src} alt={alt} fill className="object-cover" priority />
+          <Image src={src} alt={alt} fill className="object-cover " priority />
           {/* Holographic overlay */}
           <div
             className="absolute inset-0 pointer-events-none transition-opacity duration-300"
@@ -98,9 +79,8 @@ const HolographicImage = ({ src, alt }: { src: string; alt: string }) => {
             }}
           />
           {/* Bottom gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 " />
         </div>
-      </GlowingBorder>
     </div>
   );
 };
@@ -148,7 +128,7 @@ const AnimatedStat = ({
 
   useEffect(() => {
     if (hasAnimated) return;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasAnimated) {
@@ -206,6 +186,8 @@ const ScrollIndicator = () => {
 
 const PowerPointHero = () => {
   const t = useTranslations("hero");
+  const locale = useLocale();
+  const isArabic = locale === "ar";
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -226,12 +208,12 @@ const PowerPointHero = () => {
         style={{ y, opacity }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Personal Image - Left side */}
+          {/* Personal Image - Left side for Arabic (RTL), Right side for English (LTR) */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: isArabic ? 50 : -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="order-2 lg:order-1"
+            className="order-2 lg:order-2"
           >
             <HolographicImage
               src="/assets/images/PersonalPhoto-no-bg.png"
@@ -246,8 +228,8 @@ const PowerPointHero = () => {
             </div>
           </motion.div>
 
-          {/* Hero Text - Right side */}
-          <div className="space-y-8 order-1 lg:order-2">
+          {/* Hero Text - Right side for Arabic (RTL), Left side for English (LTR) */}
+          <div className="space-y-8 order-1 lg:order-1">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -266,7 +248,10 @@ const PowerPointHero = () => {
             {/* Large Bold Title */}
             <div className="space-y-2">
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight">
-                <AnimatedText text={t("title") || "Transform Your"} delay={0.3} />
+                <AnimatedText
+                  text={t("title") || "Transform Your"}
+                  delay={0.3}
+                />
               </h1>
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight">
                 <AnimatedText
@@ -293,7 +278,7 @@ const PowerPointHero = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.9 }}
-              className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-surface-card to-transparent border border-surface-border/50 backdrop-blur-sm"
+              className="w-fit flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-surface-card to-transparent border border-surface-border/50 backdrop-blur-sm"
             >
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (

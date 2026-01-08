@@ -48,7 +48,12 @@ async function getAuthToken(): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to authenticate with Paymob");
+    const errorText = await response.text();
+    console.error("Paymob authentication failed:", {
+      status: response.status,
+      error: errorText,
+    });
+    throw new Error(`Failed to authenticate with Paymob: ${response.status}`);
   }
 
   const data: PaymobAuthResponse = await response.json();
@@ -61,6 +66,9 @@ async function createPaymobOrder(
   amountCents: number,
   merchantOrderId: string
 ): Promise<number> {
+  // Ensure amount is at least 100 piasters (1 EGP minimum)
+  const validAmountCents = Math.max(amountCents, 100);
+  
   const response = await fetch(`${PAYMOB_API_BASE}/ecommerce/orders`, {
     method: "POST",
     headers: {
@@ -69,7 +77,7 @@ async function createPaymobOrder(
     body: JSON.stringify({
       auth_token: authToken,
       delivery_needed: false,
-      amount_cents: amountCents,
+      amount_cents: validAmountCents,
       currency: "EGP",
       merchant_order_id: merchantOrderId,
       items: [],
@@ -77,7 +85,15 @@ async function createPaymobOrder(
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create Paymob order");
+    const errorText = await response.text();
+    console.error("Paymob order creation failed:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+      amountCents: validAmountCents,
+      merchantOrderId,
+    });
+    throw new Error(`Failed to create Paymob order: ${response.status} - ${errorText}`);
   }
 
   const data: PaymobOrderResponse = await response.json();
@@ -173,10 +189,12 @@ export async function POST(req: NextRequest) {
     const authToken = await getAuthToken();
 
     // Step 2: Create order
+    // Use unique merchant order ID to avoid duplicate rejection
+    const merchantOrderId = `${purchase._id.toString()}_${Date.now()}`;
     const paymobOrderId = await createPaymobOrder(
       authToken,
       amountCents,
-      purchase._id.toString()
+      merchantOrderId
     );
 
     // Update purchase with Paymob order ID

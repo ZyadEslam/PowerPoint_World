@@ -35,6 +35,21 @@ const nextConfig = {
         pathname: "/api/product/image/**",
         search: "**",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.cloudinary.com",
+        pathname: "/**",
+      },
     ],
   },
   trailingSlash: true,

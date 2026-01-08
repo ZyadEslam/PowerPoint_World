@@ -1,8 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Loader2, Plus, Edit2, Save, X, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
+import {
+  Plus,
+  Edit2,
+  Save,
+  X,
+  Trash2,
+  Loader2,
+  FolderTree,
+  AlertCircle,
+  CheckCircle,
+  GripVertical,
+} from "lucide-react";
 
 interface Category {
   _id: string;
@@ -15,52 +27,60 @@ interface Category {
   updatedAt: string;
 }
 
-const CategoriesPage = () => {
+export default function CategoriesPage() {
   const t = useTranslations("dashboard.categories");
+  const locale = useLocale();
+  const isArabic = locale === "ar";
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<{
     name: string;
     slug: string;
+    description: string;
     isActive: boolean;
     sortOrder: number;
   } | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    isActive: true,
+  });
+
+  // Auto-hide toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
-      // Add cache-busting timestamp and use no-cache to ensure fresh data
       const response = await fetch(`/api/categories?t=${Date.now()}`, {
         cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
       });
       const data = await response.json();
 
       if (data.success) {
-        // Sort by sortOrder, then by createdAt
         const sorted = (data.data || []).sort((a: Category, b: Category) => {
           if (a.sortOrder !== b.sortOrder) {
             return a.sortOrder - b.sortOrder;
           }
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         });
         setCategories(sorted);
-      } else {
-        setError(data.message || t("messages.fetchError"));
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("messages.fetchError"));
+    } catch {
+      setToast({ type: "error", message: t("messages.fetchError") || "Failed to fetch categories" });
     } finally {
       setLoading(false);
     }
@@ -82,6 +102,7 @@ const CategoriesPage = () => {
     setEditingValues({
       name: category.name,
       slug: category.slug,
+      description: category.description || "",
       isActive: category.isActive,
       sortOrder: category.sortOrder,
     });
@@ -92,176 +113,110 @@ const CategoriesPage = () => {
     setEditingValues(null);
   };
 
-  const handleDelete = useCallback(
-    async (categoryId: string, categorySlug: string) => {
-      try {
-        setDeleting(categoryId);
-        setError(null);
-        setSuccess(null);
-
-        const response = await fetch(`/api/categories/${categorySlug}`, {
-          method: "DELETE",
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || t("messages.deleteError"));
-        }
-
-        setSuccess(
-          t("messages.deleteSuccess", {
-            count: data.data?.productsReassigned || 0,
-          })
-        );
-        setDeleteConfirm(null);
-        await fetchCategories();
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : t("messages.deleteError")
-        );
-      } finally {
-        setDeleting(null);
-      }
-    },
-    [t, fetchCategories]
-  );
-
   const handleSave = async (categoryId: string) => {
     if (!editingValues) return;
-
-    // Validate required fields
-    if (!editingValues.name.trim()) {
-      setError(t("messages.nameRequired"));
-      return;
-    }
-
-    if (!editingValues.slug.trim()) {
-      setError(t("messages.slugRequired"));
+    if (!editingValues.name.trim() || !editingValues.slug.trim()) {
+      setToast({ type: "error", message: t("messages.nameRequired") || "Name and slug are required" });
       return;
     }
 
     try {
       setUpdating(categoryId);
-      setError(null);
-
       const response = await fetch(`/api/categories/${categoryId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: editingValues.name.trim(),
-          slug: editingValues.slug.trim(),
-          isActive: editingValues.isActive,
-          sortOrder: Math.max(0, Math.floor(editingValues.sortOrder)),
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingValues),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = t("messages.updateError");
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage =
-            errorText || `HTTP ${response.status}: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
+      if (!response.ok) throw new Error("Failed to update");
 
       const data = await response.json();
-
       if (data.success) {
-        setSuccess(t("messages.updateSuccess"));
+        setToast({ type: "success", message: t("messages.updateSuccess") || "Category updated" });
         setEditingId(null);
         setEditingValues(null);
-        // Small delay to ensure cache invalidation completes
-        setTimeout(async () => {
-          await fetchCategories();
-        }, 100);
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        setError(data.message || t("messages.updateError"));
+        fetchCategories();
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("messages.updateError"));
+    } catch {
+      setToast({ type: "error", message: t("messages.updateError") || "Failed to update category" });
     } finally {
       setUpdating(null);
     }
   };
 
-  const handleToggleActive = async (
-    categoryId: string,
-    currentValue: boolean
-  ) => {
-    // Optimistically update the UI immediately
-    setCategories((prevCategories) =>
-      prevCategories.map((cat) =>
-        cat._id === categoryId ? { ...cat, isActive: !currentValue } : cat
-      )
+  const handleDelete = async (categoryId: string, categorySlug: string) => {
+    try {
+      setDeleting(categoryId);
+      const response = await fetch(`/api/categories/${categorySlug}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete");
+
+      setToast({ type: "success", message: t("messages.deleteSuccess") || "Category deleted" });
+      setDeleteConfirm(null);
+      fetchCategories();
+    } catch {
+      setToast({ type: "error", message: t("messages.deleteError") || "Failed to delete category" });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleToggleActive = async (categoryId: string, currentValue: boolean) => {
+    setCategories((prev) =>
+      prev.map((cat) => (cat._id === categoryId ? { ...cat, isActive: !currentValue } : cat))
     );
 
     try {
       setUpdating(categoryId);
-      setError(null);
-
       const response = await fetch(`/api/categories/${categoryId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          isActive: !currentValue,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !currentValue }),
       });
 
       if (!response.ok) {
-        // Revert the optimistic update on error
-        setCategories((prevCategories) =>
-          prevCategories.map((cat) =>
-            cat._id === categoryId ? { ...cat, isActive: currentValue } : cat
-          )
+        setCategories((prev) =>
+          prev.map((cat) => (cat._id === categoryId ? { ...cat, isActive: currentValue } : cat))
         );
-        const errorText = await response.text();
-        let errorMessage = t("messages.updateError");
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage =
-            errorText || `HTTP ${response.status}: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
+        throw new Error("Failed to update");
       }
 
-      const data = await response.json();
+      setToast({ type: "success", message: t("messages.updateSuccess") || "Category updated" });
+    } catch {
+      setToast({ type: "error", message: t("messages.updateError") || "Failed to update" });
+    } finally {
+      setUpdating(null);
+    }
+  };
 
-      if (data.success) {
-        setSuccess(t("messages.updateSuccess"));
-        // Small delay to ensure cache invalidation completes, then refresh
-        setTimeout(async () => {
-          await fetchCategories();
-        }, 100);
-        setTimeout(() => setSuccess(null), 3000);
-      } else {
-        // Revert the optimistic update on error
-        setCategories((prevCategories) =>
-          prevCategories.map((cat) =>
-            cat._id === categoryId ? { ...cat, isActive: currentValue } : cat
-          )
-        );
-        setError(data.message || t("messages.updateError"));
-      }
-    } catch (err) {
-      // Revert the optimistic update on error
-      setCategories((prevCategories) =>
-        prevCategories.map((cat) =>
-          cat._id === categoryId ? { ...cat, isActive: currentValue } : cat
-        )
-      );
-      setError(err instanceof Error ? err.message : t("messages.updateError"));
+  const handleAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategory.name.trim()) {
+      setToast({ type: "error", message: t("messages.nameRequired") || "Name is required" });
+      return;
+    }
+
+    try {
+      setUpdating("new");
+      const response = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newCategory,
+          slug: newCategory.slug || generateSlug(newCategory.name),
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create");
+
+      setToast({ type: "success", message: t("messages.createSuccess") || "Category created" });
+      setShowAddModal(false);
+      setNewCategory({ name: "", slug: "", description: "", isActive: true });
+      fetchCategories();
+    } catch {
+      setToast({ type: "error", message: t("messages.createError") || "Failed to create category" });
     } finally {
       setUpdating(null);
     }
@@ -270,537 +225,362 @@ const CategoriesPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-orange" />
+        <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="space-y-6">
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -20, x: "-50%" }}
+            className={`fixed top-20 left-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 ${
+              toast.type === "success"
+                ? "bg-green-500/90 backdrop-blur-sm text-white"
+                : "bg-red-500/90 backdrop-blur-sm text-white"
+            }`}
+          >
+            {toast.type === "success" ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+            <span className="font-medium">{toast.message}</span>
+            <button onClick={() => setToast(null)} className="ml-2 p-1 hover:bg-white/20 rounded-lg">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange/10 rounded-lg flex items-center justify-center">
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-orange" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+            <FolderTree className="w-6 h-6 text-blue-400" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase text-orange">
-              {t("badge")}
-            </p>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-              {t("title")}
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">
-              {t("subtitle")}
-            </p>
+            <h1 className="text-2xl font-bold text-white">{t("title") || "Categories"}</h1>
+            <p className="text-sm text-gray-400">{t("subtitle") || "Organize your templates"}</p>
           </div>
         </div>
+
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-black font-semibold rounded-xl transition-all shadow-lg shadow-primary-500/20"
+        >
+          <Plus className="w-5 h-5" />
+          {t("addCategory") || "Add Category"}
+        </button>
       </div>
 
-      {/* Messages */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-          {success}
-        </div>
-      )}
-
-      {/* Categories Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Categories List */}
+      <div className="bg-surface-card rounded-2xl border border-white/10 overflow-hidden">
         {categories.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-gray-600">{t("noCategories")}</p>
+          <div className="p-16 text-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/5 flex items-center justify-center">
+              <FolderTree className="w-10 h-10 text-gray-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">{t("noCategories") || "No categories found"}</h3>
+            <p className="text-gray-500 mb-6">{t("noCategoriesDesc") || "Start by adding your first category"}</p>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 px-5 py-3 bg-primary-500 hover:bg-primary-600 text-black font-semibold rounded-xl transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              {t("addCategory") || "Add Category"}
+            </button>
           </div>
         ) : (
-          <>
-            {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      {t("table.name")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      {t("table.slug")}
-                    </th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t("table.active")}
-                    </th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t("table.priority")}
-                    </th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      {t("table.actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {categories.map((category) => (
-                    <tr key={category._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        {editingId === category._id && editingValues ? (
+          <div className="divide-y divide-white/5">
+            {categories.map((category, index) => (
+              <motion.div
+                key={category._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="p-4 sm:p-6 hover:bg-white/5 transition-colors"
+              >
+                {editingId === category._id && editingValues ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">
+                          {t("form.nameLabel") || "Name"}
+                        </label>
+                        <input
+                          type="text"
+                          value={editingValues.name}
+                          onChange={(e) => {
+                            const newName = e.target.value;
+                            setEditingValues({
+                              ...editingValues,
+                              name: newName,
+                              slug: generateSlug(newName),
+                            });
+                          }}
+                          className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">
+                          {t("form.slugLabel") || "Slug"}
+                        </label>
+                        <input
+                          type="text"
+                          value={editingValues.slug}
+                          onChange={(e) =>
+                            setEditingValues({ ...editingValues, slug: generateSlug(e.target.value) })
+                          }
+                          className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-xl text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
-                            type="text"
-                            value={editingValues.name}
-                            onChange={(e) => {
-                              const newName = e.target.value;
-                              // Auto-generate slug from name if slug hasn't been manually edited
-                              // We'll track if slug was manually edited by checking if it matches the generated slug
-                              const currentGeneratedSlug = generateSlug(
-                                editingValues.name
-                              );
-                              const wasAutoGenerated =
-                                editingValues.slug === currentGeneratedSlug;
-
-                              setEditingValues({
-                                ...editingValues,
-                                name: newName,
-                                slug: wasAutoGenerated
-                                  ? generateSlug(newName)
-                                  : editingValues.slug,
-                              });
-                            }}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange focus:border-orange outline-none font-medium"
-                            placeholder={t("form.namePlaceholder")}
-                          />
-                        ) : (
-                          <>
-                            <div className="font-medium text-gray-900">
-                              {category.name}
-                            </div>
-                            {category.description && (
-                              <div className="text-sm text-gray-500 mt-1 truncate max-w-xs">
-                                {category.description}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        {editingId === category._id && editingValues ? (
-                          <input
-                            type="text"
-                            value={editingValues.slug}
-                            onChange={(e) => {
-                              // Auto-format slug as user types
-                              const formatted = e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9-]/g, "-")
-                                .replace(/-+/g, "-")
-                                .replace(/(^-|-$)/g, "");
-                              setEditingValues({
-                                ...editingValues,
-                                slug: formatted,
-                              });
-                            }}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange focus:border-orange outline-none font-mono"
-                            placeholder={t("form.slugPlaceholder")}
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-600 font-mono">
-                            {category.slug}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {editingId === category._id && editingValues ? (
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={editingValues.isActive}
-                              onChange={(e) =>
-                                setEditingValues({
-                                  ...editingValues,
-                                  isActive: e.target.checked,
-                                })
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange"></div>
-                          </label>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              handleToggleActive(
-                                category._id,
-                                category.isActive
-                              )
+                            type="checkbox"
+                            checked={editingValues.isActive}
+                            onChange={(e) =>
+                              setEditingValues({ ...editingValues, isActive: e.target.checked })
                             }
-                            disabled={updating === category._id}
-                            className={`relative inline-flex items-center cursor-pointer ${
-                              updating === category._id ? "opacity-50" : ""
-                            }`}
-                          >
-                            <div
-                              className={`w-11 h-6 rounded-full transition-colors ${
-                                category.isActive ? "bg-orange" : "bg-gray-200"
-                              }`}
-                            >
-                              <div
-                                className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
-                                  category.isActive ? "translate-x-full" : ""
-                                }`}
-                              />
-                            </div>
-                          </button>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {editingId === category._id && editingValues ? (
+                            className="sr-only peer"
+                          />
+                          <div className="w-10 h-5 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition-colors" />
+                          <div className="absolute w-4 h-4 bg-white rounded-full peer-checked:translate-x-5 transition-transform" />
+                          <span className="text-sm text-gray-400">{t("form.activeLabel") || "Active"}</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-400">{t("form.priorityLabel") || "Priority"}:</span>
                           <input
                             type="number"
                             min="0"
                             value={editingValues.sortOrder}
                             onChange={(e) =>
-                              setEditingValues({
-                                ...editingValues,
-                                sortOrder: parseInt(e.target.value) || 0,
-                              })
+                              setEditingValues({ ...editingValues, sortOrder: parseInt(e.target.value) || 0 })
                             }
-                            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange focus:border-orange outline-none text-center"
-                          />
-                        ) : (
-                          <span className="text-sm font-medium text-gray-900">
-                            {category.sortOrder}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {editingId === category._id ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleSave(category._id)}
-                              disabled={updating === category._id}
-                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
-                              title={t("buttons.save")}
-                            >
-                              {updating === category._id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Save className="w-4 h-4" />
-                              )}
-                            </button>
-                            <button
-                              onClick={handleCancelEdit}
-                              disabled={updating === category._id}
-                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                              title={t("buttons.cancel")}
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : deleteConfirm === category._id ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() =>
-                                handleDelete(category._id, category.slug)
-                              }
-                              disabled={deleting === category._id}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                              title={t("buttons.delete")}
-                            >
-                              {deleting === category._id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              disabled={deleting === category._id}
-                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                              title={t("buttons.cancel")}
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleEdit(category)}
-                              className="p-2 text-orange hover:bg-orange/10 rounded-lg transition-colors"
-                              title={t("buttons.edit")}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(category._id)}
-                              disabled={deleting === category._id}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                              title={t("buttons.delete")}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-4 p-4">
-              {categories.map((category) => (
-                <div
-                  key={category._id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 space-y-3"
-                >
-                  <div>
-                    {editingId === category._id && editingValues ? (
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-xs text-gray-500 mb-1 block">
-                            Name
-                          </label>
-                          <input
-                            type="text"
-                            value={editingValues.name}
-                            onChange={(e) => {
-                              const newName = e.target.value;
-                              // Auto-generate slug from name if slug hasn't been manually edited
-                              const currentGeneratedSlug = generateSlug(
-                                editingValues.name
-                              );
-                              const wasAutoGenerated =
-                                editingValues.slug === currentGeneratedSlug;
-
-                              setEditingValues({
-                                ...editingValues,
-                                name: newName,
-                                slug: wasAutoGenerated
-                                  ? generateSlug(newName)
-                                  : editingValues.slug,
-                              });
-                            }}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange focus:border-orange outline-none font-medium"
-                            placeholder={t("form.namePlaceholder")}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-500 mb-1 block">
-                            {t("form.slugLabel")}
-                          </label>
-                          <input
-                            type="text"
-                            value={editingValues.slug}
-                            onChange={(e) => {
-                              // Auto-format slug as user types
-                              const formatted = e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9-]/g, "-")
-                                .replace(/-+/g, "-")
-                                .replace(/(^-|-$)/g, "");
-                              setEditingValues({
-                                ...editingValues,
-                                slug: formatted,
-                              });
-                            }}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange focus:border-orange outline-none font-mono"
-                            placeholder={t("form.slugPlaceholder")}
+                            className="w-20 px-2 py-1 bg-black/50 border border-white/10 rounded-lg text-white text-center focus:outline-none focus:ring-2 focus:ring-primary-500/30"
                           />
                         </div>
                       </div>
-                    ) : (
-                      <>
-                        <h3 className="font-semibold text-gray-900 text-lg">
-                          {category.name}
-                        </h3>
-                        <p className="text-xs text-gray-500 font-mono mt-1">
-                          {category.slug}
-                        </p>
-                        {category.description && (
-                          <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                            {category.description}
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">
-                        {t("form.activeLabel")}
-                      </label>
-                      {editingId === category._id && editingValues ? (
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={editingValues.isActive}
-                            onChange={(e) =>
-                              setEditingValues({
-                                ...editingValues,
-                                isActive: e.target.checked,
-                              })
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange"></div>
-                        </label>
-                      ) : (
-                        <button
-                          onClick={() =>
-                            handleToggleActive(category._id, category.isActive)
-                          }
-                          disabled={updating === category._id}
-                          className={`relative inline-flex items-center cursor-pointer ${
-                            updating === category._id ? "opacity-50" : ""
-                          }`}
-                        >
-                          <div
-                            className={`w-11 h-6 rounded-full transition-colors ${
-                              category.isActive ? "bg-orange" : "bg-gray-200"
-                            }`}
-                          >
-                            <div
-                              className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform ${
-                                category.isActive ? "translate-x-full" : ""
-                              }`}
-                            />
-                          </div>
-                        </button>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">
-                        {t("form.priorityLabel")}
-                      </label>
-                      {editingId === category._id && editingValues ? (
-                        <input
-                          type="number"
-                          min="0"
-                          value={editingValues.sortOrder}
-                          onChange={(e) =>
-                            setEditingValues({
-                              ...editingValues,
-                              sortOrder: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange focus:border-orange outline-none"
-                        />
-                      ) : (
-                        <span className="text-sm font-medium text-gray-900">
-                          {category.sortOrder}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-gray-200">
-                    {editingId === category._id ? (
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleSave(category._id)}
                           disabled={updating === category._id}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                          className="p-2 text-green-400 hover:bg-green-500/20 rounded-lg transition-colors disabled:opacity-50"
                         >
                           {updating === category._id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                           ) : (
-                            <>
-                              <Save className="w-4 h-4" />
-                              <span>{t("buttons.save")}</span>
-                            </>
+                            <Save className="w-5 h-5" />
                           )}
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          disabled={updating === category._id}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                          className="p-2 text-gray-400 hover:bg-white/10 rounded-lg transition-colors"
                         >
-                          <X className="w-4 h-4" />
-                          <span>{t("buttons.cancel")}</span>
+                          <X className="w-5 h-5" />
                         </button>
                       </div>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-orange text-white rounded-lg hover:bg-orange/90 transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                          <span>{t("buttons.edit")}</span>
-                        </button>
-                        {deleteConfirm === category._id ? (
-                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-sm text-red-800 mb-2">
-                              {t("messages.deleteConfirm")}
-                            </p>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() =>
-                                  handleDelete(category._id, category.slug)
-                                }
-                                disabled={deleting === category._id}
-                                className="flex-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
-                              >
-                                {deleting === category._id ? (
-                                  <>
-                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                    {t("messages.deleting")}
-                                  </>
-                                ) : (
-                                  <>
-                                    <Trash2 className="w-3 h-3" />
-                                    {t("buttons.delete")}
-                                  </>
-                                )}
-                              </button>
-                              <button
-                                onClick={() => setDeleteConfirm(null)}
-                                disabled={deleting === category._id}
-                                className="flex-1 px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
-                              >
-                                {t("buttons.cancel")}
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(category._id)}
-                            disabled={deleting === category._id}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>{t("buttons.delete")}</span>
-                          </button>
-                        )}
-                      </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <div className="hidden sm:flex items-center text-gray-600">
+                      <GripVertical className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-white">{category.name}</h3>
+                        <span className="text-xs font-mono text-gray-500 bg-white/5 px-2 py-0.5 rounded">
+                          {category.slug}
+                        </span>
+                      </div>
+                      {category.description && (
+                        <p className="text-sm text-gray-500 mt-1 truncate">{category.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleToggleActive(category._id, category.isActive)}
+                        disabled={updating === category._id}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${
+                          category.isActive ? "bg-green-500" : "bg-gray-600"
+                        } ${updating === category._id ? "opacity-50" : ""}`}
+                      >
+                        <span
+                          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
+                            category.isActive ? (isArabic ? "left-0.5" : "right-0.5") : (isArabic ? "right-0.5" : "left-0.5")
+                          }`}
+                        />
+                      </button>
+                      <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded">
+                        #{category.sortOrder}
+                      </span>
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className="p-2 text-gray-400 hover:text-primary-400 hover:bg-primary-500/20 rounded-lg transition-colors"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      {deleteConfirm === category._id ? (
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleDelete(category._id, category.slug)}
+                            disabled={deleting === category._id}
+                            className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                          >
+                            {deleting === category._id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(null)}
+                            className="p-2 text-gray-400 hover:bg-white/10 rounded-lg transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setDeleteConfirm(category._id)}
+                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Info Box */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2">
-          {t("info.title")}
-        </h3>
-        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-          <li>
-            <strong>{t("info.nameSlugLabel")}:</strong> {t("info.nameSlugDesc")}
-          </li>
-          <li>
-            <strong>{t("info.activeLabel")}:</strong> {t("info.activeDesc")}
-          </li>
-          <li>
-            <strong>{t("info.priorityLabel")}:</strong> {t("info.priorityDesc")}
-          </li>
-        </ul>
-      </div>
+      {/* Add Category Modal */}
+      <AnimatePresence>
+        {showAddModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowAddModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-surface-card rounded-2xl border border-white/10 shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white">{t("addCategory") || "Add Category"}</h2>
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAddCategory} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    {t("form.nameLabel") || "Name"} *
+                  </label>
+                  <input
+                    type="text"
+                    value={newCategory.name}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      setNewCategory({
+                        ...newCategory,
+                        name,
+                        slug: generateSlug(name),
+                      });
+                    }}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500/50"
+                    placeholder={t("form.namePlaceholder") || "Category name"}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    {t("form.slugLabel") || "Slug"}
+                  </label>
+                  <input
+                    type="text"
+                    value={newCategory.slug}
+                    onChange={(e) =>
+                      setNewCategory({ ...newCategory, slug: generateSlug(e.target.value) })
+                    }
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white font-mono text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                    placeholder="category-slug"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    {t("form.descriptionLabel") || "Description"}
+                  </label>
+                  <textarea
+                    value={newCategory.description}
+                    onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
+                    placeholder={t("form.descriptionPlaceholder") || "Optional description"}
+                  />
+                </div>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={newCategory.isActive}
+                      onChange={(e) => setNewCategory({ ...newCategory, isActive: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition-colors" />
+                    <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full peer-checked:translate-x-5 transition-transform" />
+                  </div>
+                  <span className="text-gray-300">{t("form.activeLabel") || "Active"}</span>
+                </label>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-colors"
+                  >
+                    {t("cancel") || "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updating === "new"}
+                    className="flex-1 py-3 px-4 bg-primary-500 hover:bg-primary-600 text-black font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {updating === "new" ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5" />
+                        {t("create") || "Create"}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-};
-
-export default CategoriesPage;
+}

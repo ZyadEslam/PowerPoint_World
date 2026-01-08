@@ -80,8 +80,10 @@ export async function POST(req: NextRequest) {
     // Find purchase by merchantOrderId (our MongoDB purchase ID) or paymobOrderId
     let purchase = null;
 
+    // merchantOrderId format: purchaseId_timestamp - extract the actual ID
     if (merchantOrderId) {
-      purchase = await Purchase.findById(merchantOrderId);
+      const actualPurchaseId = merchantOrderId.split("_")[0];
+      purchase = await Purchase.findById(actualPurchaseId);
     }
 
     if (!purchase && paymobOrderId) {
@@ -129,7 +131,7 @@ export async function GET(req: NextRequest) {
   const paymobOrderId = searchParams.get("order");
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || url.origin;
-  const locale = "en";
+  const locale = "ar"; // Use Arabic locale
 
   if (success) {
     try {
@@ -137,8 +139,10 @@ export async function GET(req: NextRequest) {
 
       let purchase = null;
 
+      // merchantOrderId format: purchaseId_timestamp - extract the actual ID
       if (merchantOrderId) {
-        purchase = await Purchase.findById(merchantOrderId);
+        const actualPurchaseId = merchantOrderId.split("_")[0];
+        purchase = await Purchase.findById(actualPurchaseId);
       }
 
       if (!purchase && paymobOrderId) {
@@ -183,7 +187,8 @@ export async function GET(req: NextRequest) {
     if (merchantOrderId) {
       try {
         await dbConnect();
-        const purchase = await Purchase.findById(merchantOrderId);
+        const actualPurchaseId = merchantOrderId.split("_")[0];
+        const purchase = await Purchase.findById(actualPurchaseId);
         if (purchase && purchase.paymentStatus === "pending") {
           purchase.paymentStatus = "failed";
           await purchase.save();

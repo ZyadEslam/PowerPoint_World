@@ -120,7 +120,25 @@ export default function TemplateDetailPage({
 
       const purchaseData = await purchaseRes.json();
 
-      // Initiate Paymob payment
+      // For free templates, complete purchase immediately without payment
+      if (template.price === 0) {
+        const freeRes = await fetch("/api/purchases/complete-free", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ purchaseId: purchaseData.purchase.id }),
+        });
+
+        if (!freeRes.ok) {
+          const error = await freeRes.json();
+          throw new Error(error.error || "Failed to complete free purchase");
+        }
+
+        // Refresh the page to show download button
+        window.location.reload();
+        return;
+      }
+
+      // For paid templates, initiate Paymob payment
       const paymentRes = await fetch("/api/paymob/template-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

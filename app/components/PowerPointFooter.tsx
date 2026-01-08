@@ -15,13 +15,22 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const PowerPointFooter = () => {
   const t = useTranslations('footer');
   const locale = useLocale();
+  const pathname = usePathname();
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+  
+  // Hide footer on dashboard pages (dashboard has its own layout)
+  const isDashboardPage = pathname?.includes("/dashboard");
+  
+  if (isDashboardPage) {
+    return null;
+  }
 
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;

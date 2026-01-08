@@ -51,20 +51,24 @@ export default async function LocaleLayout({
     session = null;
   }
 
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
   return (
-    <NextIntlClientProvider messages={messages}>
-      <LocaleProvider locale={locale}>
-        <AuthProvider session={session}>
-          <CtxProviders>
-            <DashboardMenuProvider>
-              <PerformanceMonitor />
-              <PowerPointNavbar />
-              <main>{children}</main>
-              <PowerPointFooter />
-            </DashboardMenuProvider>
-          </CtxProviders>
-        </AuthProvider>
-      </LocaleProvider>
-    </NextIntlClientProvider>
+    <div dir={dir} lang={locale} className="min-h-screen">
+      <NextIntlClientProvider messages={messages}>
+        <LocaleProvider locale={locale}>
+          <AuthProvider session={session}>
+            <CtxProviders>
+              <DashboardMenuProvider>
+                <PerformanceMonitor />
+                <PowerPointNavbar />
+                <main>{children}</main>
+                <PowerPointFooter />
+              </DashboardMenuProvider>
+            </CtxProviders>
+          </AuthProvider>
+        </LocaleProvider>
+      </NextIntlClientProvider>
+    </div>
   );
 }

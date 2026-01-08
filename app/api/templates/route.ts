@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
     const search = searchParams.get("search");
+    const type = searchParams.get("type"); // "free" or "premium"
     const sort = searchParams.get("sort") || "newest";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
@@ -30,6 +31,14 @@ export async function GET(req: NextRequest) {
 
     if (featured === "true") {
       query.isFeatured = true;
+    }
+
+    // Filter by free or premium
+    if (type === "free") {
+      query.$or = [{ isFree: true }, { price: 0 }];
+    } else if (type === "premium") {
+      query.isFree = { $ne: true };
+      query.price = { $gt: 0 };
     }
 
     if (search) {

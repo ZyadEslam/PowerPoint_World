@@ -124,6 +124,11 @@ const templateSchema = new mongoose.Schema(
       enum: ["16:9", "4:3", "1:1", "A4", "other"],
       default: "16:9",
     },
+    // Pricing type
+    isFree: {
+      type: Boolean,
+      default: false,
+    },
     // Status
     isActive: {
       type: Boolean,
